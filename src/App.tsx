@@ -1,122 +1,188 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
-import './App.css'
+import { useEffect, useMemo, useState } from 'react'
+import { Header } from './components/Header'
+import { Sidebar } from './components/Sidebar'
+import { Eyebrow, Lede } from './components/Blocks'
+import { foundationsPages } from './content/foundations'
+import { buildPages } from './content/build'
+import { comparePages } from './content/compare'
+import type { Page, Section, Theme } from './types'
 
-function App() {
-  const [count, setCount] = useState(0)
-
-  return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.tsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
-
-      <div className="ticks"></div>
-
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
-
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
-  )
+const STORAGE = {
+  theme: 'mcp-theme',
+  section: 'mcp-section',
 }
 
-export default App
+function readHash() {
+  const h = window.location.hash.replace(/^#\/?/, '')
+  if (!h) return null
+  const [section, page] = h.split('/')
+  return { section, page: page || null }
+}
+
+function writeHash(section: Section, page: string) {
+  const next = `#/${section}/${page}`
+  if (window.location.hash !== next) {
+    history.replaceState(null, '', next)
+  }
+}
+
+function getInitialTheme(): Theme {
+  const saved = localStorage.getItem(STORAGE.theme) as Theme | null
+  if (saved === 'dark' || saved === 'light') return saved
+  return 'dark'
+}
+
+function getInitialSection(): Section {
+  const fromHash = readHash()?.section as Section | undefined
+  if (
+    fromHash === 'foundations' ||
+    fromHash === 'build' ||
+    fromHash === 'compare'
+  ) {
+    return fromHash
+  }
+  const saved = localStorage.getItem(STORAGE.section)
+  if (saved === 'foundations' || saved === 'build' || saved === 'compare') {
+    return saved
+  }
+  return 'foundations'
+}
+
+function pagesFor(s: Section): Page[] {
+  if (s === 'foundations') return foundationsPages
+  if (s === 'build') return buildPages
+  return comparePages
+}
+
+export default function App() {
+  const [theme, setTheme] = useState<Theme>(getInitialTheme)
+  const [section, setSection] = useState<Section>(getInitialSection)
+  const pages = useMemo(() => pagesFor(section), [section])
+
+  const initialPage =
+    readHash()?.page && pages.some((p) => p.id === readHash()!.page)
+      ? readHash()!.page!
+      : pages[0].id
+  const [activeId, setActiveId] = useState<string>(initialPage)
+  const [menuOpen, setMenuOpen] = useState(false)
+
+  useEffect(() => {
+    document.documentElement.dataset.theme = theme
+    localStorage.setItem(STORAGE.theme, theme)
+  }, [theme])
+
+  useEffect(() => {
+    document.documentElement.dataset.section = section
+    localStorage.setItem(STORAGE.section, section)
+  }, [section])
+
+  useEffect(() => {
+    writeHash(section, activeId)
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }, [section, activeId])
+
+  useEffect(() => {
+    const onPop = () => {
+      const h = readHash()
+      if (!h) return
+      if (
+        h.section === 'foundations' ||
+        h.section === 'build' ||
+        h.section === 'compare'
+      ) {
+        setSection(h.section)
+        if (h.page) setActiveId(h.page)
+      }
+    }
+    window.addEventListener('hashchange', onPop)
+    return () => window.removeEventListener('hashchange', onPop)
+  }, [])
+
+  useEffect(() => {
+    if (!pages.some((p) => p.id === activeId)) {
+      setActiveId(pages[0].id)
+    }
+  }, [pages, activeId])
+
+  const active = pages.find((p) => p.id === activeId) ?? pages[0]
+  const idx = pages.findIndex((p) => p.id === active.id)
+  const prev = idx > 0 ? pages[idx - 1] : null
+  const next = idx < pages.length - 1 ? pages[idx + 1] : null
+
+  const sectionLabel =
+    section === 'foundations'
+      ? 'Foundations'
+      : section === 'build'
+        ? 'Build'
+        : 'Compare'
+
+  const handleSection = (s: Section) => {
+    setSection(s)
+    const ps = pagesFor(s)
+    setActiveId(ps[0].id)
+    setMenuOpen(false)
+  }
+
+  const handlePage = (id: string) => {
+    setActiveId(id)
+    setMenuOpen(false)
+  }
+
+  return (
+    <div className="app">
+      <Header
+        section={section}
+        onSection={handleSection}
+        theme={theme}
+        onTheme={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+        onMenu={() => setMenuOpen((o) => !o)}
+      />
+      <Sidebar
+        section={section}
+        pages={pages.map(({ id, title }) => ({ id, title }))}
+        activeId={active.id}
+        onSelect={handlePage}
+        open={menuOpen}
+        onClose={() => setMenuOpen(false)}
+      />
+      <main className="main">
+        <article className="content" key={`${section}-${active.id}`}>
+          <Eyebrow>
+            {sectionLabel} <span aria-hidden="true">/</span>{' '}
+            {String(idx + 1).padStart(2, '0')} {active.title}
+          </Eyebrow>
+          <h1>{active.heading}</h1>
+          {active.lede ? <Lede>{active.lede}</Lede> : null}
+          {active.content}
+
+          <div className="next-prev">
+            {prev ? (
+              <button
+                className="np-btn"
+                data-dir="prev"
+                onClick={() => handlePage(prev.id)}
+              >
+                <span className="np-dir">← Previous</span>
+                <span className="np-title">{prev.title}</span>
+              </button>
+            ) : (
+              <span />
+            )}
+            {next ? (
+              <button
+                className="np-btn"
+                data-dir="next"
+                onClick={() => handlePage(next.id)}
+              >
+                <span className="np-dir">Next →</span>
+                <span className="np-title">{next.title}</span>
+              </button>
+            ) : (
+              <span />
+            )}
+          </div>
+        </article>
+      </main>
+    </div>
+  )
+}
