@@ -272,7 +272,7 @@ export const foundationsPages: Page[] = [
   "id": 1,
   "method": "initialize",
   "params": {
-    "protocolVersion": "2025-06-18",
+    "protocolVersion": "2025-11-25",
     "capabilities": { "tools": {}, "resources": {} },
     "clientInfo": { "name": "Claude Desktop", "version": "1.4.0" }
   }
@@ -512,13 +512,14 @@ export const foundationsPages: Page[] = [
 
   {
     id: 'sampling-roots',
-    title: 'Sampling & roots',
-    heading: 'Two advanced primitives',
+    title: 'Sampling, roots & elicitation',
+    heading: 'Three client-side capabilities',
     lede: (
       <>
-        Both flow from server back to client. Sampling lets your
+        These flow between server and client. Sampling lets your
         server ask the model a question. Roots tell your server what
-        files or paths the user has shared.
+        files or paths the user has shared. Elicitation lets your
+        server pause and ask the user for more input.
       </>
     ),
     content: (
@@ -556,6 +557,17 @@ const title = reply.content[0].text`}
           roots; your server can list and read inside them. This is how
           file-aware servers stay sandboxed: they only see what the user
           has shared, never the whole disk.
+        </p>
+
+        <h3>Elicitation (server → user)</h3>
+        <p>
+          Added in the 2025-06-18 spec and now a stable client feature,
+          elicitation lets your server pause mid-tool and ask the user
+          for a bit more information (a missing field, a confirmation, a
+          choice). The client shows a small form built from a JSON
+          schema you provide and returns the answer to your handler.
+          Support varies by host, so check for the capability before you
+          rely on it.
         </p>
       </>
     ),
@@ -829,7 +841,7 @@ const title = reply.content[0].text`}
             { label: 'Tool result text', value: '~50–100 KB', meta: 'practical; longer wastes context' },
             { label: 'Tool timeout', value: '~30 s', meta: 'host default; raise via progress events' },
             { label: 'Transport', value: 'stdio / HTTP', meta: 'pick stdio for local' },
-            { label: 'Protocol version', value: '2025-06-18', meta: 'current as of early 2026; check spec' },
+            { label: 'Protocol version', value: '2025-11-25', meta: 'current stable; 2026-07-28 revision in RC' },
             { label: 'Server processes', value: 'one per server', meta: 'host launches; you handle one connection' },
           ]}
         />

@@ -854,12 +854,15 @@ npm publish --access public`}
 }`}
         </Code>
 
-        <Callout label="DXT bundles" tone="note">
+        <Callout label="MCPB bundles" tone="note">
           <p>
-            Anthropic also publishes a packaging format called{' '}
-            <strong>DXT</strong>: a zip with manifest plus your code.
-            Users get a one-click install in Claude Desktop. Once your
-            server is stable, ship a DXT for the smoothest experience.
+            There is also a packaging format called{' '}
+            <strong>MCPB</strong> (MCP Bundle, a <code>.mcpb</code> file,
+            formerly named DXT): a zip with a manifest plus your code and
+            dependencies. Users get a one-click install in Claude
+            Desktop. The format, CLI (<code>@anthropic-ai/mcpb</code>),
+            and schema are open source. Once your server is stable, ship
+            an MCPB for the smoothest experience.
           </p>
         </Callout>
       </>

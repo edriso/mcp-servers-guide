@@ -163,7 +163,7 @@ export const comparePages: Page[] = [
             },
             {
               feature: 'Distribution',
-              a: 'npm package, dxt bundle, git clone',
+              a: 'npm package, mcpb bundle, git clone',
               b: 'A URL the host points at',
               c: 'Different shipping models',
             },
@@ -194,14 +194,26 @@ export const comparePages: Page[] = [
           rows={[
             { feature: 'Claude Desktop', a: 'Yes', b: 'Yes', c: 'Yes' },
             { feature: 'Claude Code (CLI / IDE)', a: 'Yes', b: 'Yes', c: 'Yes' },
+            { feature: 'ChatGPT (OpenAI)', a: 'Yes', b: 'Partial', c: 'Partial' },
             { feature: 'Cursor', a: 'Yes', b: 'Partial', c: 'Yes' },
             { feature: 'Zed', a: 'Yes', b: 'Yes', c: 'Yes' },
-            { feature: 'VS Code (Copilot Chat with MCP)', a: 'Yes', b: 'Partial', c: 'Partial' },
+            { feature: 'VS Code (Copilot agent mode)', a: 'Yes', b: 'Partial', c: 'Partial' },
             { feature: 'Sampling support', a: 'Yes (Claude Desktop)', b: 'n/a', c: 'n/a' },
             { feature: 'Roots support', a: 'Yes (most hosts)', b: 'n/a', c: 'n/a' },
             { feature: 'OAuth (HTTP transport)', a: 'Yes', b: 'n/a', c: 'n/a' },
           ]}
         />
+
+        <Callout label="Adoption is now industry-wide" tone="info">
+          <p>
+            MCP is no longer a Claude-only story. OpenAI, Google,
+            Microsoft, and Amazon have all adopted it, and the protocol
+            is stewarded as a vendor-neutral standard under the Linux
+            Foundation. Tool support is broad; resources and prompts are
+            still catching up in some hosts, so verify the exact
+            capabilities of the hosts you target.
+          </p>
+        </Callout>
 
         <Callout label="Test in two hosts" tone="warn">
           <p>
@@ -229,10 +241,11 @@ export const comparePages: Page[] = [
             'Free hosting for stdio servers (the user\'s own machine).',
             'OAuth 2.1 path for serious multi-user deployments.',
             'Sampling lets your tools call back into the model when they need help.',
-            'Mature SDKs in Node, Python, Rust, Go, Swift, and more.',
+            'Official SDKs in TypeScript, Python, C#, Go, Java, and Rust, plus Ruby, PHP, Kotlin, and Swift.',
+            'Now a vendor-neutral standard under the Linux Foundation, adopted by OpenAI, Google, Microsoft, and Amazon.',
           ]}
           cons={[
-            'Newer. Host support varies and the spec still moves.',
+            'Host support still varies by feature, and the spec keeps evolving.',
             'Tool descriptions matter a lot; bad descriptions = bad model decisions.',
             'You don\'t control the LLM, the prompt, or the conversation flow.',
             'Debugging is "watch the model decide". Inspector helps but it is not magic.',
@@ -265,8 +278,8 @@ export const comparePages: Page[] = [
 
         <p className="footnote">
           MCP details and tooling in this guide are accurate as of
-          early 2026. The spec, the SDKs, and host support are all
-          moving fast. When in doubt, check{' '}
+          mid-2026 (spec revision 2025-11-25). The spec, the SDKs, and
+          host support are all moving fast. When in doubt, check{' '}
           <code>modelcontextprotocol.io</code> and{' '}
           <code>github.com/modelcontextprotocol</code>.
         </p>
